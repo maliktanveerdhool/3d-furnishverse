@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -133,7 +134,6 @@ const ProductDetail = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
             <div>
               <ThreeDViewer 
-                modelPath={product.modelPath} 
                 productImage={product.image} 
                 category={product.category}
               />
