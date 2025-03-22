@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -10,7 +9,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Product } from "@/types/product";
 import { toast } from "sonner";
 
-// Enhanced product data with real images
 const products: Product[] = [
   {
     id: 1,
@@ -71,7 +69,6 @@ const ProductDetail = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Find the product based on the ID from the URL
     const productId = parseInt(id || "1");
     const foundProduct = products.find(p => p.id === productId);
     
@@ -135,7 +132,11 @@ const ProductDetail = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
             <div>
-              <ThreeDViewer modelPath={product.modelPath} productImage={product.image} />
+              <ThreeDViewer 
+                modelPath={product.modelPath} 
+                productImage={product.image} 
+                category={product.category}
+              />
             </div>
             <div>
               <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
