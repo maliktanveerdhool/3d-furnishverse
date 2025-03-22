@@ -3,7 +3,7 @@ import { useRef, useState, Suspense } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, PresentationControls, Stage, useGLTF } from "@react-three/drei";
 import { Button } from "@/components/ui/button";
-import { Cube } from "lucide-react";
+import { Box } from "lucide-react";
 
 interface ModelProps {
   modelPath: string;
@@ -75,7 +75,7 @@ const ThreeDViewer = ({ modelPath = "/models/furniture.glb" }: ThreeDViewerProps
             className="absolute bottom-4 right-4"
             onClick={() => setIsModelView(true)}
           >
-            <Cube className="mr-2 h-4 w-4" />
+            <Box className="mr-2 h-4 w-4" />
             View in 3D
           </Button>
         </div>
