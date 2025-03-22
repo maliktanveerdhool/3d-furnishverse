@@ -1,9 +1,9 @@
 
-import { useRef, useState, Suspense } from "react";
+import { useRef, useState, Suspense, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, PresentationControls, Stage, useGLTF } from "@react-three/drei";
+import { OrbitControls, PresentationControls, Stage, useGLTF, Environment } from "@react-three/drei";
 import { Button } from "@/components/ui/button";
-import { Box } from "lucide-react";
+import { Box, Rotate3D } from "lucide-react";
 
 interface ModelProps {
   modelPath: string;
@@ -12,53 +12,91 @@ interface ModelProps {
 function Model({ modelPath }: ModelProps) {
   const groupRef = useRef(null);
   
-  // We'll use a placeholder model for now since we don't have real models
-  // In a real implementation, you would use the modelPath to load actual GLTF files
+  // For demonstration, we'll use a simple box model with a more furniture-like appearance
   const mesh = useRef(null);
   
-  useFrame(() => {
+  useFrame((state) => {
     if (mesh.current) {
-      mesh.current.rotation.y += 0.01;
+      mesh.current.rotation.y += 0.005;
     }
   });
 
   return (
     <group ref={groupRef}>
-      <mesh ref={mesh}>
-        <boxGeometry args={[1, 1, 1]} />
-        <meshStandardMaterial color="#f2f2f2" />
+      <mesh ref={mesh} position={[0, 0, 0]} castShadow receiveShadow>
+        <boxGeometry args={[1.5, 0.4, 0.8]} />
+        <meshStandardMaterial color="#d4a76a" />
+      </mesh>
+      <mesh position={[0, -0.4, 0]} rotation={[0, 0, 0]} receiveShadow>
+        <boxGeometry args={[2, 0.1, 1]} />
+        <meshStandardMaterial color="#a67c52" />
+      </mesh>
+      <mesh position={[-0.65, -0.7, 0.4]} receiveShadow>
+        <cylinderGeometry args={[0.05, 0.05, 0.5, 16]} />
+        <meshStandardMaterial color="#8b5a2b" />
+      </mesh>
+      <mesh position={[0.65, -0.7, 0.4]} receiveShadow>
+        <cylinderGeometry args={[0.05, 0.05, 0.5, 16]} />
+        <meshStandardMaterial color="#8b5a2b" />
+      </mesh>
+      <mesh position={[-0.65, -0.7, -0.4]} receiveShadow>
+        <cylinderGeometry args={[0.05, 0.05, 0.5, 16]} />
+        <meshStandardMaterial color="#8b5a2b" />
+      </mesh>
+      <mesh position={[0.65, -0.7, -0.4]} receiveShadow>
+        <cylinderGeometry args={[0.05, 0.05, 0.5, 16]} />
+        <meshStandardMaterial color="#8b5a2b" />
       </mesh>
     </group>
   );
 }
 
-// For actual GLTF models, you would use:
-// function Model({ modelPath }: ModelProps) {
-//   const { scene } = useGLTF(modelPath);
-//   return <primitive object={scene} />;
-// }
-
 interface ThreeDViewerProps {
   modelPath?: string;
+  productImage: string;
 }
 
-const ThreeDViewer = ({ modelPath = "/models/furniture.glb" }: ThreeDViewerProps) => {
+const ThreeDViewer = ({ modelPath = "/models/furniture.glb", productImage }: ThreeDViewerProps) => {
   const [isModelView, setIsModelView] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulate loading delay
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+    
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
-    <div className="relative">
+    <div className="relative rounded-lg overflow-hidden">
       {isModelView ? (
         <div className="h-[500px] bg-gray-100 rounded-lg overflow-hidden">
-          <Canvas dpr={[1, 2]} shadows camera={{ fov: 45 }}>
-            <Suspense fallback={null}>
-              <Stage environment="city" intensity={0.5}>
+          {isLoading ? (
+            <div className="w-full h-full flex items-center justify-center bg-gray-100">
+              <Rotate3D className="h-8 w-8 animate-spin text-gray-400" />
+            </div>
+          ) : (
+            <Canvas dpr={[1, 2]} shadows camera={{ fov: 45, position: [0, 1, 5] }}>
+              <color attach="background" args={["#f8f9fa"]} />
+              <Suspense fallback={null}>
+                <ambientLight intensity={0.5} />
+                <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={1} castShadow />
                 <Model modelPath={modelPath} />
-              </Stage>
-              <OrbitControls autoRotate={false} />
-            </Suspense>
-          </Canvas>
+                <Environment preset="city" />
+                <OrbitControls 
+                  autoRotate={false} 
+                  enableZoom={true} 
+                  enablePan={true}
+                  minPolarAngle={Math.PI / 6}
+                  maxPolarAngle={Math.PI / 2}
+                />
+              </Suspense>
+            </Canvas>
+          )}
           <Button 
-            className="absolute bottom-4 right-4 z-10"
+            className="absolute bottom-4 right-4 z-10 bg-white text-black hover:bg-gray-100"
             onClick={() => setIsModelView(false)}
           >
             Show Image
@@ -67,12 +105,12 @@ const ThreeDViewer = ({ modelPath = "/models/furniture.glb" }: ThreeDViewerProps
       ) : (
         <div className="relative h-[500px] bg-gray-100 rounded-lg overflow-hidden">
           <img 
-            src="/placeholder.svg" 
+            src={productImage} 
             alt="Product" 
             className="w-full h-full object-cover"
           />
           <Button 
-            className="absolute bottom-4 right-4"
+            className="absolute bottom-4 right-4 bg-white text-black hover:bg-gray-100"
             onClick={() => setIsModelView(true)}
           >
             <Box className="mr-2 h-4 w-4" />

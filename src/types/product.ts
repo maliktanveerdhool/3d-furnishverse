@@ -9,6 +9,7 @@ export interface Product {
   inStock?: boolean;
   featured?: boolean;
   colors?: string[];
+  modelPath?: string;
   dimensions?: {
     width: number;
     height: number;

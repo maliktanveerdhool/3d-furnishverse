@@ -1,39 +1,45 @@
 
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, Heart } from "lucide-react";
 import { Product } from "@/types/product";
+import { toast } from "sonner";
 
-// Mock product data
+// Updated product data with real images
 const products: Product[] = [
   {
     id: 1,
-    name: "Minimalist Sofa",
-    price: 899,
-    image: "/placeholder.svg",
-    category: "Sofas"
+    name: "Scandinavian Lounge Chair",
+    price: 699,
+    image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&q=80",
+    category: "Chairs",
+    featured: true
   },
   {
     id: 2,
-    name: "Wooden Coffee Table",
-    price: 349,
-    image: "/placeholder.svg",
-    category: "Tables"
+    name: "Modern Coffee Table",
+    price: 449,
+    image: "https://images.unsplash.com/photo-1533090481720-856c6e3c1fdc?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&q=80",
+    category: "Tables",
+    featured: true
   },
   {
     id: 3,
-    name: "Scandinavian Chair",
-    price: 249,
-    image: "/placeholder.svg",
-    category: "Chairs"
+    name: "Nordic Sofa",
+    price: 1299,
+    image: "https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&q=80",
+    category: "Sofas",
+    featured: true
   },
   {
     id: 4,
-    name: "Modern Bookshelf",
+    name: "Minimalist Bookshelf",
     price: 499,
-    image: "/placeholder.svg",
-    category: "Storage"
+    image: "https://images.unsplash.com/photo-1594026112284-02bb6f3352fe?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&q=80",
+    category: "Storage",
+    featured: true
   }
 ];
 
@@ -67,38 +73,58 @@ interface ProductCardProps {
 const ProductCard = ({ product }: ProductCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
   
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    toast.success(`${product.name} added to cart`, {
+      description: "Item successfully added to your cart"
+    });
+  };
+  
+  const handleWishlist = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    toast.success(`${product.name} added to wishlist`, {
+      description: "Item saved to your wishlist"
+    });
+  };
+  
   return (
-    <Card 
-      className="overflow-hidden transition-all duration-300 hover:shadow-lg"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      <div className="relative h-64 bg-gray-100">
-        <img 
-          src={product.image} 
-          alt={product.name} 
-          className="w-full h-full object-cover"
-        />
-        {isHovered && (
-          <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center space-x-2">
-            <Button size="sm" variant="secondary">
-              <ShoppingCart className="mr-2 h-4 w-4" />
-              Add to Cart
-            </Button>
-            <Button size="icon" variant="ghost" className="bg-white rounded-full">
-              <Heart className="h-4 w-4" />
-            </Button>
-          </div>
-        )}
-      </div>
-      <CardContent className="pt-4">
-        <div className="text-sm text-gray-500 mb-1">{product.category}</div>
-        <h3 className="font-medium text-lg">{product.name}</h3>
-      </CardContent>
-      <CardFooter className="flex justify-between items-center pt-0">
-        <span className="font-medium">${product.price}</span>
-      </CardFooter>
-    </Card>
+    <Link to={`/products/${product.id}`}>
+      <Card 
+        className="overflow-hidden transition-all duration-300 hover:shadow-lg"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        <div className="relative h-64 bg-gray-100">
+          <img 
+            src={product.image} 
+            alt={product.name} 
+            className="w-full h-full object-cover"
+          />
+          {isHovered && (
+            <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center space-x-2">
+              <Button size="sm" variant="secondary" onClick={handleAddToCart}>
+                <ShoppingCart className="mr-2 h-4 w-4" />
+                Add to Cart
+              </Button>
+              <Button size="icon" variant="ghost" className="bg-white rounded-full" onClick={handleWishlist}>
+                <Heart className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
+        </div>
+        <CardContent className="pt-4">
+          <div className="text-sm text-gray-500 mb-1">{product.category}</div>
+          <h3 className="font-medium text-lg">{product.name}</h3>
+        </CardContent>
+        <CardFooter className="flex justify-between items-center pt-0">
+          <span className="font-medium">${product.price}</span>
+        </CardFooter>
+      </Card>
+    </Link>
   );
 };
 
