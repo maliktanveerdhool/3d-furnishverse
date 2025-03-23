@@ -1,6 +1,6 @@
 
 import { useRef, useState, Suspense, useEffect } from "react";
-import { Canvas } from "@react-three/fiber";
+import { Canvas, useThree } from "@react-three/fiber";
 import { OrbitControls, PresentationControls, Environment, useTexture } from "@react-three/drei";
 import { Button } from "@/components/ui/button";
 import { Box, Rotate3D, MousePointer } from "lucide-react";
@@ -39,6 +39,44 @@ function ImageModel({ productImage }: ImageModelProps) {
   );
 }
 
+// Create a separate component to handle drag state
+function DragStateManager({ children }: { children: React.ReactNode }) {
+  const [isDragging, setIsDragging] = useState(false);
+  const { gl } = useThree();
+  
+  useEffect(() => {
+    const handlePointerDown = () => setIsDragging(true);
+    const handlePointerUp = () => setIsDragging(false);
+    
+    const domElement = gl.domElement;
+    domElement.addEventListener('pointerdown', handlePointerDown);
+    domElement.addEventListener('pointerup', handlePointerUp);
+    domElement.addEventListener('pointerleave', handlePointerUp);
+    
+    return () => {
+      domElement.removeEventListener('pointerdown', handlePointerDown);
+      domElement.removeEventListener('pointerup', handlePointerUp);
+      domElement.removeEventListener('pointerleave', handlePointerUp);
+    };
+  }, [gl]);
+  
+  return (
+    <>
+      {children}
+      {!isDragging && (
+        <Html position={[-1.3, 1.3, 0]}>
+          <div className="bg-white/70 backdrop-blur-sm p-2 rounded-md flex items-center whitespace-nowrap">
+            <span className="text-xs font-medium">Drag to rotate, scroll to zoom</span>
+          </div>
+        </Html>
+      )}
+    </>
+  );
+}
+
+// Add Html component from drei to show overlay in 3D space
+import { Html } from "@react-three/drei";
+
 interface ThreeDViewerProps {
   productImage: string;
   category: string;
@@ -47,7 +85,6 @@ interface ThreeDViewerProps {
 const ThreeDViewer = ({ productImage, category }: ThreeDViewerProps) => {
   const [isModelView, setIsModelView] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
     // Simulate loading delay
@@ -86,19 +123,19 @@ const ThreeDViewer = ({ productImage, category }: ThreeDViewerProps) => {
                   <ambientLight intensity={1.5} />
                   <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={1.5} castShadow />
                   <pointLight position={[-10, -10, -10]} intensity={0.5} />
-                  <PresentationControls
-                    global
-                    zoom={1.0}
-                    rotation={[0, 0, 0]}
-                    polar={[-Math.PI / 3, Math.PI / 3]}
-                    azimuth={[-Math.PI / 3, Math.PI / 3]}
-                    config={{ mass: 1, tension: 170, friction: 26 }}
-                    snap={{ mass: 4, tension: 400, friction: 40 }}
-                    onDragStart={() => setIsDragging(true)}
-                    onDragEnd={() => setIsDragging(false)}
-                  >
-                    <ImageModel productImage={productImage} />
-                  </PresentationControls>
+                  <DragStateManager>
+                    <PresentationControls
+                      global
+                      zoom={1.0}
+                      rotation={[0, 0, 0]}
+                      polar={[-Math.PI / 3, Math.PI / 3]}
+                      azimuth={[-Math.PI / 3, Math.PI / 3]}
+                      config={{ mass: 1, tension: 170, friction: 26 }}
+                      snap={{ mass: 4, tension: 400, friction: 40 }}
+                    >
+                      <ImageModel productImage={productImage} />
+                    </PresentationControls>
+                  </DragStateManager>
                   <OrbitControls
                     enablePan={false}
                     minPolarAngle={Math.PI / 4}
@@ -108,12 +145,6 @@ const ThreeDViewer = ({ productImage, category }: ThreeDViewerProps) => {
                   <Environment preset="sunset" />
                 </Suspense>
               </Canvas>
-              {!isDragging && (
-                <div className="absolute top-4 left-4 bg-white/70 backdrop-blur-sm p-2 rounded-md flex items-center">
-                  <MousePointer className="w-4 h-4 mr-1" />
-                  <span className="text-xs">Drag to rotate, scroll to zoom</span>
-                </div>
-              )}
             </div>
           )}
           <Button 
@@ -128,7 +159,7 @@ const ThreeDViewer = ({ productImage, category }: ThreeDViewerProps) => {
           <img 
             src={productImage} 
             alt="Product" 
-            className="w-full h-full object-contain" /* Changed to object-contain to maintain aspect ratio */
+            className="w-full h-full object-contain" 
           />
           <Button 
             className="absolute bottom-4 right-4 bg-white text-black hover:bg-gray-100"
