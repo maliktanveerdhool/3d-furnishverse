@@ -18,7 +18,7 @@ const Hero = () => {
           </div>
           <div className="md:w-1/2">
             <img 
-              src="/placeholder.svg" 
+              src="https://images.unsplash.com/photo-1567016432779-094069958ea5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1400&q=80" 
               alt="Modern living room furniture" 
               className="rounded-lg shadow-lg w-full h-[400px] object-cover"
             />

@@ -31,7 +31,16 @@ const products: Product[] = [
     price: 1299,
     image: "https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&q=80",
     category: "Sofas",
-    featured: true
+    featured: true,
+    description: "Three-seater sofa with a timeless Nordic design. Features comfortable cushions with removable covers and solid wooden legs.",
+    colors: ["Beige", "Light Gray", "Dark Blue"],
+    dimensions: {
+      width: 220,
+      height: 85,
+      depth: 95
+    },
+    inStock: true,
+    modelPath: "/models/sofa.glb"
   },
   {
     id: 4,
@@ -39,7 +48,16 @@ const products: Product[] = [
     price: 499,
     image: "https://images.unsplash.com/photo-1594026112284-02bb6f3352fe?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&q=80",
     category: "Storage",
-    featured: true
+    featured: true,
+    description: "A sleek, minimalist bookshelf that combines style and functionality. Made from high-quality oak with a natural finish.",
+    colors: ["Oak", "Walnut", "White"],
+    dimensions: {
+      width: 120,
+      height: 180,
+      depth: 40
+    },
+    inStock: true,
+    modelPath: "/models/bookshelf.glb"
   }
 ];
 
