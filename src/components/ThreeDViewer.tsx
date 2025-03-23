@@ -3,8 +3,9 @@ import { useRef, useState, Suspense, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, PresentationControls, Environment, useTexture } from "@react-three/drei";
 import { Button } from "@/components/ui/button";
-import { Box, Rotate3D } from "lucide-react";
+import { Box, Rotate3D, MousePointer } from "lucide-react";
 import * as THREE from "three";
+import { toast } from "sonner";
 
 interface ImageModelProps {
   productImage: string;
@@ -23,10 +24,17 @@ function ImageModel({ productImage }: ImageModelProps) {
     }
   }, [texture]);
   
+  // Rotate the model slightly to look more 3D
   return (
     <mesh ref={meshRef} rotation={[0, 0, 0]}>
-      <planeGeometry args={[2, 1.5]} />
-      <meshBasicMaterial map={texture} side={THREE.DoubleSide} transparent={true} />
+      <planeGeometry args={[3, 2.25]} /> {/* Increased size for better visibility */}
+      <meshStandardMaterial 
+        map={texture} 
+        side={THREE.DoubleSide} 
+        transparent={true} 
+        metalness={0.1}
+        roughness={0.5}
+      />
     </mesh>
   );
 }
@@ -39,41 +47,74 @@ interface ThreeDViewerProps {
 const ThreeDViewer = ({ productImage, category }: ThreeDViewerProps) => {
   const [isModelView, setIsModelView] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
     // Simulate loading delay
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 1000);
+    }, 800);
     
     return () => clearTimeout(timer);
-  }, []);
+  }, [isModelView]);
+
+  const handleModelView = () => {
+    setIsModelView(true);
+    setIsLoading(true);
+    toast.info("3D View Enabled", {
+      description: "Drag to rotate, scroll to zoom the product"
+    });
+  };
 
   return (
     <div className="relative rounded-lg overflow-hidden">
       {isModelView ? (
         <div className="h-[500px] bg-gray-100 rounded-lg overflow-hidden">
           {isLoading ? (
-            <div className="w-full h-full flex items-center justify-center bg-gray-100">
-              <Rotate3D className="h-8 w-8 animate-spin text-gray-400" />
+            <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100">
+              <Rotate3D className="h-10 w-10 animate-spin text-gray-400 mb-3" />
+              <p className="text-gray-500 animate-pulse">Loading 3D view...</p>
             </div>
           ) : (
-            <Canvas dpr={[1, 2]} camera={{ fov: 45, position: [0, 0, 3] }}>
-              <color attach="background" args={["#f8f9fa"]} />
-              <Suspense fallback={null}>
-                <ambientLight intensity={1.0} />
-                <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={1} castShadow />
-                <PresentationControls
-                  global
-                  zoom={0.8}
-                  rotation={[0, 0, 0]}
-                  polar={[-Math.PI / 4, Math.PI / 4]}
-                  azimuth={[-Math.PI / 4, Math.PI / 4]}>
-                  <ImageModel productImage={productImage} />
-                </PresentationControls>
-                <Environment preset="city" />
-              </Suspense>
-            </Canvas>
+            <div className="relative w-full h-full">
+              <Canvas 
+                dpr={[1, 2]} 
+                camera={{ fov: 45, position: [0, 0, 4] }}
+              >
+                <color attach="background" args={["#f8f9fa"]} />
+                <Suspense fallback={null}>
+                  <ambientLight intensity={1.5} />
+                  <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={1.5} castShadow />
+                  <pointLight position={[-10, -10, -10]} intensity={0.5} />
+                  <PresentationControls
+                    global
+                    zoom={1.0}
+                    rotation={[0, 0, 0]}
+                    polar={[-Math.PI / 3, Math.PI / 3]}
+                    azimuth={[-Math.PI / 3, Math.PI / 3]}
+                    config={{ mass: 1, tension: 170, friction: 26 }}
+                    snap={{ mass: 4, tension: 400, friction: 40 }}
+                    onDragStart={() => setIsDragging(true)}
+                    onDragEnd={() => setIsDragging(false)}
+                  >
+                    <ImageModel productImage={productImage} />
+                  </PresentationControls>
+                  <OrbitControls
+                    enablePan={false}
+                    minPolarAngle={Math.PI / 4}
+                    maxPolarAngle={Math.PI - Math.PI / 4}
+                    makeDefault
+                  />
+                  <Environment preset="sunset" />
+                </Suspense>
+              </Canvas>
+              {!isDragging && (
+                <div className="absolute top-4 left-4 bg-white/70 backdrop-blur-sm p-2 rounded-md flex items-center">
+                  <MousePointer className="w-4 h-4 mr-1" />
+                  <span className="text-xs">Drag to rotate, scroll to zoom</span>
+                </div>
+              )}
+            </div>
           )}
           <Button 
             className="absolute bottom-4 right-4 z-10 bg-white text-black hover:bg-gray-100"
@@ -87,11 +128,11 @@ const ThreeDViewer = ({ productImage, category }: ThreeDViewerProps) => {
           <img 
             src={productImage} 
             alt="Product" 
-            className="w-full h-full object-cover"
+            className="w-full h-full object-contain" /* Changed to object-contain to maintain aspect ratio */
           />
           <Button 
             className="absolute bottom-4 right-4 bg-white text-black hover:bg-gray-100"
-            onClick={() => setIsModelView(true)}
+            onClick={handleModelView}
           >
             <Box className="mr-2 h-4 w-4" />
             View in 3D
