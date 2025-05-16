@@ -1,5 +1,7 @@
 🪑 3D Furniture Showroom
 A sleek and interactive 3D furniture showroom built for modern web experiences. Users can explore furniture pieces in a dynamic 3D space, providing an immersive product preview environment.
+![image](https://github.com/user-attachments/assets/4d88e390-0552-4d89-9394-2308617066bb)
+
 
 🎯 Features
 🌀 Interactive 3D furniture models
